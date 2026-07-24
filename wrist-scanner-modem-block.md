@@ -64,19 +64,19 @@ just the MCU→modem ones.
 
 | Part | Channels | Direction | Signals |
 |---|---|---|---|
-| SN74AXC2T245 | 2 | Per-bit DIR straps: bit 1 MCU→modem, bit 2 modem→MCU | UART pair in one package: PA9 → MAIN_RXD, MAIN_TXD → PA10 |
-| SN74AXC2T45 | 2 | modem→MCU (single DIR strap — both bits same direction) | RI → PB12, STATUS → PB13 |
-| SN74AXC1T45 | 1 | MCU→modem | PB15 → DTR |
+| SN74AXC2T45 #1 | 2 | modem→MCU (single DIR strap) | MAIN_TXD → PA10, RI → PB12 |
+| SN74AXC2T45 #2 | 2 | MCU→modem (single DIR strap) | PA9 → MAIN_RXD, PB15 → DTR |
+| SN74AXC1T45 | 1 | modem→MCU | STATUS → PB13 |
 | SN74AXC1T45 (**DNP**) | 1 | modem→MCU default, DIR strap reversible | M_HSK: module GPIO25/Pin39 (nominated) → **PD9 (EXTI9)** — Mode-B handshake, populate only if Mode B ships |
 
-- **DIR pins are strapped, never driven**: DIR is a direction-control input (A→B vs B→A),
-  intended for runtime-switched buses; on point-to-point lines it's a build-time constant —
-  tie per the datasheet's direction table. The 2T45 has ONE DIR for both bits (both
-  channels must share a direction — why UART can't fit in it); the 2T245 has per-bit DIR,
-  which is what allows the TXD/RXD pair to share a package. Confirm SN74AXC2T245 LCSC
-  stock in a JLC-assemblable package; fallback = two direction-grouped 2T45s (modem→MCU:
-  MAIN_TXD+RI; MCU→modem: MAIN_RXD+DTR) with STATUS on the 1T45 and DTR moving to the
-  MCU→modem 2T45.
+- **Channels are grouped by direction, deliberately**: the 2T45 has ONE DIR pin for both
+  bits, so each package must point one way — which is why the UART pair is split across
+  the two packages. DIR is a direction-control input (A→B vs B→A) meant for runtime-
+  switched buses; here it's strapped as a build-time constant per the datasheet table,
+  never driven. Grouping by direction means 2× the identical part number, one glance-
+  checkable strap per package, and no per-bit strap traps (the alternative — an
+  SN74AXC2T245 with per-bit DIR holding TXD+RXD together — works but adds a second part
+  number and a silent-failure strap risk for purely cosmetic layout benefit).
 
 - VCCA = **VDD_EXT** (from the module — this is deliberate: shifter outputs float safe when
   the module is off, and VDD_EXT presence itself tells the MCU the module is alive).
