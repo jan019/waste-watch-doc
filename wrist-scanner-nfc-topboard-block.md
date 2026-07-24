@@ -17,13 +17,18 @@ the exact orderable part number and package with LCSC stock before footprint wor
         │  ║   │  ┌──────────┐  EMC filter + matching      │    ║       │
         │  ║   │  │  PN7160  ├──────────────────────────►──╫────╢       │
         │  ║   │  │ 27.12MHz │  (TX1/TX2 diff + RX tap)    │    ║       │
-        │  ║   │  └───┬──────┘                             │    ║       │
-        │  ║   └──────┼────────────────────────────────────┘    ║       │
-        │  ╚══════════╪═════════════════════════════════════════╝       │
-        │             │ B2B connector: 3V3, VBAT, GND×n, SCL, SDA,      │
-        │             │ IRQ, VEN, BTN0–8, LED0–7, STATUS A/B, spares    │
-        └─────────────┼──────────────────────────────────────────────────┘
-                      ▼ base board (MCU I2C1 = PB8/PB9, IRQ = PA8, VEN = PB10)
+        │  ║   │  └──────────┘                             │    ║       │
+        │  ║   │  ┌─ DF40 B2B — underside, central ─────┐  │    ║       │
+        │  ║   │  │ ≥3 mm from loop trace, inboard of   │  │    ║       │
+        │  ║   │  │ the ferrite ring (rule §2.3).       │  │    ║       │
+        │  ║   │  │ 3V3, VBAT, GND×n, SCL/SDA, IRQ,     │  │    ║       │
+        │  ║   │  │ VEN, BTN0–8, LED0–7, STATUS, spares │  │    ║       │
+        │  ║   │  └──────────────────┬──────────────────┘  │    ║       │
+        │  ║   └─────────────────────┼─────────────────────┘    ║       │
+        │  ╚═════════════════════════╪══════════════════════════╝       │
+        └────────────────────────────┼───────────────────────────────────┘
+                                     ▼ mates down to base board
+                                       (MCU I2C1 = PB8/PB9, IRQ = PA8, VEN = PB10)
 ```
 
 ---
@@ -66,12 +71,17 @@ change (keep the matching footprints generic).
      perfectly."
    - Copper pullback on the base board's outer 3–4 mm ring (helps, but fights with the
      base board's own layout needs; do it where free).
-3. **Enclosure rule (write into the ID/mechanical spec):** no closed conductive ring
+3. **B2B connector placement (underside, inside the loop — unavoidable and fine):** keep
+   the DF40 body and its pads **≥ 3 mm laterally from the loop trace**, inboard of the
+   ferrite ring so the sheet's ring under the track stays continuous (a cutout in the
+   sheet's center region is fine), and clear of the PN7160 matching cluster. Central-ish
+   placement satisfies all three and is mechanically optimal for the stack.
+4. **Enclosure rule (write into the ID/mechanical spec):** no closed conductive ring
    concentric with the loop — no metal bezel, trim ring, or continuous metal gasket
    carrier around the face. A closed ring is a shorted turn and will collapse the field
    entirely. No metal faceplate or dome-carrier sheet over the aperture; discrete tact
    switches, silicone keymat, plastic light pipes, and small corner screws are all fine.
-4. Measure L and Q **of the real assembled stack** (both boards mated, battery in, inside
+5. Measure L and Q **of the real assembled stack** (both boards mated, battery in, inside
    the enclosure mock-up) with the VNA before computing matching values. The loop in free
    air is a different antenna.
 
